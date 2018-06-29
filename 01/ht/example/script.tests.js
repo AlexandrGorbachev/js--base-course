@@ -155,4 +155,60 @@ describe('isDeepEqual', function() {
     });
 });
 
+describe('spiral', function() {
+    it('фунция', function() {
+        return assert.isOk(typeof spiral === 'function');
+    });
+
+    it('возвращает undefined для пустого массива', function() {
+        return assert.isOk(spiral([]) === undefined);
+    });
+
+    it('возвращает undefined для немассива', function() {
+        return assert.isOk(spiral("") === undefined);
+    });
+
+    it('возвращает массив для корректных данных', function() {
+        return assert.isOk(Array.isArray(spiral([[4, 5], [6, 7]])) === true) ;
+    });
+
+    it('возвращает массив без изменений для массива с длиной 1', function() {
+        return assert.isOk(isDeepEqual(spiral([1, 2, 4, 3]), [1, 2, 4, 3]) === true);
+    });
+
+    it('обрабатывает массивы длиной 2', function() {
+        return assert.isOk(isDeepEqual(spiral([[4, 5], [6, 7]]), [4,5,7,6]) === true);
+    });
+
+    it('обрабатывает массивы длиной 3', function() {
+        return assert.isOk(isDeepEqual(spiral([[1, 2, 3], [4, 5, 6], [7, 8, 9]]), [1,2,3,6,9,8,7,4,5]) === true);
+    });
+
+    it('обрабатывает массивы длиной 4', function() {
+        return assert.isOk(isDeepEqual(spiral([
+            [1, 2, 3, 4, 5],
+            [6, 7, 8, 9, 10],
+            [11, 12, 13, 14, 15],
+            [16, 17, 18, 19, 20]
+        ]), [1,2,3,4,5,10,15,20,19,18,17,16,11,6,7,8,9,14,13,12]) === true);
+    });
+});
+describe('quadraticEquation', function() {
+    it('фунция', function() {
+        return assert.isOk(typeof quadraticEquation === 'function');
+    });
+
+    it('возвращает пустой массив при отсутствии корней уравнения', function() {
+        return assert.isOk((Array.isArray(quadraticEquation(1,-8,72)) && quadraticEquation(1,-8,72).length == 0) === true);
+    });
+
+    it('возвращает один корень при условии равенства корней уравнения', function() {
+        return assert.isOk(quadraticEquation(1,12,36).length == 1);
+    });
+
+    it('возвращает два корня при условии корректности данных', function() {
+        return assert.isOk(quadraticEquation(1,6,1)[0] == -0.1715728752538097 && quadraticEquation(1,6,1)[1] == -5.82842712474619);
+    });
+
+ });
 mocha.run();
