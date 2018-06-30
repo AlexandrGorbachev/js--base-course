@@ -102,7 +102,34 @@ o = new Proxy(o, {
 * те запуск кода ниже должен делать то, что говорят методы
 * u.askName().askAge().showAgeInConsole().showNameInAlert();
 */
+function Asker(){
+  var age,name;
+  var self = this;
+  function askName(){
+    name = prompt("what's your name?", "");
+    return self;
+  }
+  function askAge(){
+    age = prompt("what's your age?", "");
+    return self;
+  }
+  function showAgeInConsole(){
+    console.log(age);
+    return self;
+  }
+  function showNameInAlert(){
+    alert(name);
+    return self;
+  }
+  
+  this.askName = askName;
+  this.askAge = askAge;
+  this.showAgeInConsole = showAgeInConsole;
+  this.showNameInAlert = showNameInAlert;
+}
+var u = new Asker();
 
+u.askName().askAge().showAgeInConsole().showNameInAlert();
 /**
  * Написать фукнцию-калькулятор, которая работает следующим образом
  * calculate('+')(1)(2); // 3
