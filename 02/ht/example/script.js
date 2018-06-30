@@ -82,6 +82,19 @@ Function.prototype.myBind = function(context){
 * o.magicProperty = 3 // (любое значение) 
 * в консоль выводилось значение, которое присваивается и текущее время
 */
+var o = {};
+
+o = new Proxy(o, {
+ set(target, prop, value) {
+   if (prop == "magicProperty"){ 
+   var date = new Date();
+    console.log(value + " время: " + date.getHours() + " : "
+                + date.getMinutes() + " : " + date.getSeconds() );
+   }
+    target.prop = value;
+    return true;
+  }
+});
 
 /**
 * Создать конструктор с методами, так, 
