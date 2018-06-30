@@ -129,15 +129,36 @@ function Asker(){
 }
 var u = new Asker();
 
-u.askName().askAge().showAgeInConsole().showNameInAlert();
+// u.askName().askAge().showAgeInConsole().showNameInAlert();
 /**
  * Написать фукнцию-калькулятор, которая работает следующим образом
  * calculate('+')(1)(2); // 3
  * calculate('*')(2)(3); // 6
  * Допустимые операции : + - * /
  */
-function calculate() {
-  /* put your code here */
+function calculate(sign){
+  var total;
+  return function(x){
+    return function(y){
+      switch(sign) {
+        case "+":
+          total = x + y;
+          break;
+        case "-":
+          total = x - y;
+          break;
+        case "*":
+          total = x * y;
+          break;
+        case "/":
+          total = x / y;
+          break;
+        default:
+          alert("недопустимый символ");
+       }
+      return total;
+    }  
+  }
 }
 
 /**
