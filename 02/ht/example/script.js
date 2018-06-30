@@ -71,7 +71,12 @@ function bind(func, context) {
  * который работает так же как оригинальный .bind но не использует его внутри
  * (можно использовать фукнцию выше)
  */
-
+Function.prototype.myBind = function(context){
+  var self = this;
+  return function(){
+      self.apply(context, arguments);
+    }
+}
 /**
 * Создать объект o так, чтобы каждый раз когда в коде написано 
 * o.magicProperty = 3 // (любое значение) 
