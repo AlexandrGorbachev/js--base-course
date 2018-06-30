@@ -1,4 +1,4 @@
-/* eslint no-var: "off" */
+﻿/* eslint no-var: "off" */
 /* eslint no-unused-vars: "off" */
 /* eslint max-len: "off" */
 
@@ -11,8 +11,42 @@
  * @return {boolean} идентичны ли параметры по содержимому
  */
 function isDeepEqual(objA, objB) {
-  /* Ваше решение */
-  return undefined;
+    var recursion = 0;
+    if (isNaN(objA) === isNaN(objB)) {
+        return true;
+    }
+
+    if (objA == null || typeof(objA) != "object" ||
+        objB == null || typeof(objB) != "object") {
+        return false;
+    }
+
+    var propertiesInA = 0,
+        propertiesInB = 0;
+    for (var property in objA) {
+        if (objA[property] === objA) {
+          recursion++;
+          objA[property] = "circular";
+        }
+        propertiesInA += 1;
+    }
+    for (var property in objB) {
+        if (objB[property] === objB) {
+          recursion++;
+          objB[property] = "circular";
+        }
+        propertiesInB += 1;
+        if (!(property in objA) || !isDeepEqual(objA[property], objB[property])) {
+            return false;
+        }
+    }
+    return (propertiesInA == propertiesInB) && (recursion % 2 == 0);
+
+   function isNaN(item){
+     if (Number.isNaN(item)) {return "ok"};
+      return item;
+   }
+ return undefined;
 }
 
 /**
