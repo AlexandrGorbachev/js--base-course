@@ -56,6 +56,13 @@ function isDeepEqual(objA, objB) {
  * @return {function} функция с зафиксированным контекстом
  */
 function bind(func, context) {
+
+
+  if (typeof(func) === "function") {
+    return function(){
+      func.apply(context, arguments);
+    }
+  }
   return undefined;
 }
 
