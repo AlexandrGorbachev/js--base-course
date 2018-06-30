@@ -166,9 +166,28 @@ function calculate(sign){
  * new Singleton() === new Singleton
  */
 function Singleton() {
+    if (Singleton.instance) {
+    return Singleton.instance;
+  }
+  Singleton.instance = this;
+  return;
   throw "undefined";
 }
 
+// var Singletone = (function () {
+//   var instance;
+
+//   return function Construct_singletone () {
+//     if (instance) {
+//       return instance;
+//     }
+//     if (this && this.constructor === Construct_singletone) {
+//       instance = this;
+//     } else {
+//       return new Construct_singletone();
+//     }
+//   }
+// }());
 /**
   * Создайте функцию ForceConstructor
   * которая работает как конструктор независимо от того,
