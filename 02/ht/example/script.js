@@ -174,27 +174,21 @@ function Singleton() {
   throw "undefined";
 }
 
-// var Singletone = (function () {
-//   var instance;
-
-//   return function Construct_singletone () {
-//     if (instance) {
-//       return instance;
-//     }
-//     if (this && this.constructor === Construct_singletone) {
-//       instance = this;
-//     } else {
-//       return new Construct_singletone();
-//     }
-//   }
-// }());
 /**
   * Создайте функцию ForceConstructor
   * которая работает как конструктор независимо от того,
   * вызвана она с new или без
   * и сохраняет параметры в создаваемый объект с именами параметров
   */
-function ForceContructor(a, b, c) {
+function ForceContructor(a, b, c){
+  if( this instanceof ForceContructor){
+  this.a = a;
+  this.b = b;
+  this.c = c;
+  } else {
+    return new ForceContructor(a, b, c);
+    }
+  return;
   throw "undefined";
 }
 
@@ -207,9 +201,27 @@ function ForceContructor(a, b, c) {
  * log(s(3)(4)(5)); // 12
  * Число вызовов может быть неограниченым
  */
-function sum() {
+function sum(a) {
+  var total;
+  if (a === undefined){
+    a = 0;
+  }
+  total = a;
+  function innerSum(b){
+    if (b === undefined){
+      return sum(total);
+    } else {
+      return sum(total + b);
+    }
+  }
+  innerSum.toString = function(){
+    return total;
+  }
+  return innerSum;
   throw "undefined";
 }
+
+///////
 
 function log(x) {
   console.log(+x);
