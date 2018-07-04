@@ -348,10 +348,4 @@ describe("User / PreUser", function() {
   });
 });
 
-describe("curry", function() {
-  it("добавить тесты", function() {
-    assert.isOk(false === true);
-  });
-});
-
 mocha.run();
