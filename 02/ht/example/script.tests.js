@@ -307,6 +307,25 @@ describe("sum", function() {
   });
 });
 
+describe("currying", function() {
+    it("функция", function() {
+    assert.isOk(typeof curry === "function");
+  });
+      it("работает с четырьмя параметрами", function() {
+    function target1(a,b,c,d) { return a + b + c + d };
+    assert.isOk(+curry(target1)(1)(2)(3)(4) === 10);
+  });
+      it("работает с двумя параметрами", function() {
+    function target1(a,b) { return a + b};
+    assert.isOk(+curry(target1)(1)(2) === 3);
+  });
+      it("работает с пятью параметрами", function() {
+    function target1(a,b,c,d,e) { return a + b + c + d +e};
+    assert.isOk(+curry(target1)(1)(2)(3)(4)(5) === 15);
+  });
+});
+
+
 describe("User / PreUser", function() {
   it("конструкторы", function() {
     var u = new User();

@@ -243,7 +243,17 @@ function log(x) {
  * http://prgssr.ru/development/vvedenie-v-karrirovanie-v-javascript.html
  * @param {*} func 
  */
-function curry(func) {}
+function curry(curried){
+  var total = [];
+  function innerCurry(arg){
+    total.push(arg);
+    return innerCurry;
+  }
+    innerCurry.toString = function(){
+    return curried.apply(this, total);
+  }
+  return innerCurry;
+}
 
 /*
 Написать код, который для объекта созданного с помощью конструктора будет показывать, 
