@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="UTF-8">
+        <title>form</title>
+        <style type="text/css">
+            p{
+                font-size: 18px;
+                font-weight: bold;
+                color: green;
+                margin: 10px;
+            }
+            div{
+                margin-bottom: 20px;
+            }
+            #output{
+                width: 350px;
+                height: auto;
+                border: 1px solid grey;
+                margin: 10px;
+                padding: 5px;
+            }
+        </style>
+    </head>
+    <body>
+        <form>
+            <p>Имя пользователя</p>
+            <input id="form-name-input" type="text" name="name" placeholder="Имя" required>
+            <p>Родной город</p>
+            <select>
+                <option>Житковичи</option>
+                <option selected>Минск</option>
+                <option>Волковыск</option>
+                <option>Дзержинск</option>
+            </select>
+            <p>Комментарий</p>
+            <textarea placeholder="Ваш комментарий"></textarea>
+            <p>Пол</p>
+
+            <label for="contactChoice1">Мужской</label>
+            <input type="radio" id="contactChoice1" name="contact" checked>
+
+            <label for="contactChoice2">Женский</label>
+            <input type="radio" id="contactChoice2" name="contact">
+
+            <p>Собрать информацию</p>
+            <input type="submit" name="submit" value="Собрать">
+        </form>
+        <script type="text/javascript">
+
+            var form = document.forms[0];
+            var nameInput = form.elements[0];
+            var townInput = form.elements[1];
+            var commentInput = form.elements[2];
+            var radioMale = form.elements[3];
+            var sex;
+            
+            form.addEventListener("submit", collectInfo);
+
+            function collectInfo(event){
+                event.preventDefault();
+
+                if (!commentInput.value) {
+                    alert("Заполните все поля");
+                    return;
+                }
+                if(radioMale.checked) {
+                    sex = "Мужской"
+                } else sex = "Женский";
+
+                var toDelete = document.getElementById("output");
+                if (toDelete) {
+                    document.body.removeChild(toDelete);
+                }
+
+                var output = document.createElement("div");
+                output.id = "output";
+                output.textContent = "Имя пользователя: " + nameInput.value + 
+                                    ", Родной город: " + 
+                                    townInput.options[townInput.selectedIndex].value + 
+                                    ", Комментарий: " + commentInput.value +
+                                    ", Пол: " + sex;
+                document.body.appendChild(output);
+                eraseData();
+            }
+            function eraseData(){
+
+                nameInput.value = "";
+                townInput.selectedIndex = 1;
+                commentInput.value = "";
+                radioMale.checked = true;
+            }
+        </script>
+    </body>
+</html>
