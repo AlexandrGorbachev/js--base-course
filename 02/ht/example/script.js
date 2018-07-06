@@ -289,4 +289,108 @@ var u = new User();
 При клике по кнопкам [<] / [>] нужно реализовать листание календаря
 Добавть на страницу index.html вызов календаря
 */
-function drawInteractiveCalendar(el) {}
+var calendarButton = document.getElementById("calendar-button");
+var calendarIsShown = false;
+
+calendarButton.addEventListener("click", function(){
+  if (calendarIsShown) return;
+  drawInteractiveCalendar(document.body);
+});
+
+function drawInteractiveCalendar(el) {
+  calendarIsShown = true;
+  var calendarContainer = document.createElement("div");
+  calendarContainer.style.border = "1px solid grey";
+  calendarContainer.style.width = "300px";
+  calendarContainer.style.position = "fixed";
+  calendarContainer.style.top = "100px";
+  calendarContainer.style.right = "100px";
+
+  var year = +prompt("введите год", "2018");
+  var month = +prompt("введите месяц в формате числа от 1 до 12", "7");
+
+  publishCalendar(year, month, calendarContainer);
+
+  var buttonNext = document.getElementById("next");
+
+  function clearCalendar() {
+    el.removeChild(calendarContainer);
+  }
+
+  function publishCalendar(year, month, calendarContainer){
+    var calendarString = drawCalendar(year, month, calendarContainer);
+
+    el.appendChild(calendarContainer);
+
+    var calendarMonthText = document.getElementById("calendarMonth");
+    calendarMonthText.innerHTML = month;
+
+    var calendarYearText = document.getElementById("calendarYear");
+    calendarYearText.innerHTML = year;
+
+    var buttonPrev = document.getElementById("prev");
+    buttonPrev.addEventListener("click", function(){
+    clearCalendar();
+      if (month == 1) {
+        month = 12;
+        year--;
+      } else {
+        month--;
+      }
+    publishCalendar(year, month, calendarContainer);
+    });
+
+    var buttonNext = document.getElementById("next");
+    buttonNext.addEventListener("click", function(){
+    clearCalendar();
+      if (month == 12) {
+        month = 1;
+        year++;
+      } else {
+        month++;
+      }
+    publishCalendar(year, month, calendarContainer);
+    });
+  }
+}
+
+function drawCalendar(year, month, htmlEl) {
+
+        var targetDate = new Date(year, month-1);
+        var dayOfWeek = targetDate.getDay(); //day of week
+
+    var totalDays = new Date(year, month, 0).getDate(); //total
+
+        var totalString = "";
+
+        for (var i = 1; i <= totalDays; i++) {
+            var j = "";
+            var countDate = new Date(year, month-1, i);
+            if (i < 10){
+                j = "__0" + i + " ";
+            } else {
+                j += "__" + i + " ";
+            }
+            if ( !countDate.getDay() ) {
+                j += "<br>";
+            }
+            totalString += j + " ";
+        }
+
+        if (!dayOfWeek) dayOfWeek = 7;
+        for (i = 2; i <= dayOfWeek; i++) {
+            var additionToString = "____ ";
+            totalString = additionToString + totalString;
+        }
+
+        totalString = "<span id='prev' style='cursor:pointer'>[<]</span><span id='calendarMonth'></span>/<span id='calendarYear'></span><span id='next' style='cursor:pointer'>[>]</span><br>"
+                      + "<pre>  Пн   Вт   Ср   Чт  Пт   Сб   Вс</pre><br>" 
+                      + totalString;
+
+        htmlEl.innerHTML = '';
+        htmlEl.innerHTML = totalString;
+
+        return totalString;
+}
+
+
