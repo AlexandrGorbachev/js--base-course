@@ -393,4 +393,75 @@ function drawCalendar(year, month, htmlEl) {
         return totalString;
 }
 
+// функция throttle
 
+function throttle(fun, delay){  
+  var timer, counter = 0;
+    return function(arg){
+      counter++;
+      if (!timer) {
+        timer = +new Date();
+        return fun(arg);
+      }
+      var startTime = +new Date();
+      var counterLast = counter;
+      setTimeout(function(){
+        if (((startTime - timer) < delay) && (counterLast != counter)) return;
+        timer = +new Date();
+        return fun(arg);
+    }, delay);
+  }
+}
+
+// function throttle(func, ms) {
+
+//   var isThrottled = false,
+//     savedArgs,
+//     savedThis;
+
+//   function wrapper() {
+
+//     if (isThrottled) { // (2)
+//       savedArgs = arguments;
+//       savedThis = this;
+//       return;
+//     }
+
+//     func.apply(this, arguments); // (1)
+
+//     isThrottled = true;
+
+//     setTimeout(function() {
+//       isThrottled = false; // (3)
+//       if (savedArgs) {
+//         wrapper.apply(savedThis, savedArgs);
+//         savedArgs = savedThis = null;
+//       }
+//     }, ms);
+//   }
+
+//   return wrapper;
+// }
+
+function debounce(fun, delay){  
+  var timer;
+    return function(arg){
+      if (!timer) {
+        timer = +new Date();
+        return fun(arg);
+      }
+      var startTime = +new Date();
+      setTimeout(function(){
+        if ((startTime - timer) < delay) return;
+        timer = +new Date();
+        return fun(arg);
+    }, delay);
+  }
+}
+
+
+function sleep(delay) {
+    var start = Date.now();
+    while (Date.now() - start < delay * 1000) { };
+  return;
+}

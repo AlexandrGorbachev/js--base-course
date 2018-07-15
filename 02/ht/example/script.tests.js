@@ -5,6 +5,7 @@
 /* eslint max-len: "off" */
 mocha.setup("bdd");
 var assert = chai.assert;
+var expect = chai.expect;
 
 describe("isDeepEqual", function() {
   it("фунция", function() {
@@ -347,5 +348,109 @@ describe("User / PreUser", function() {
     assert.isOk(u instanceof PreUser);
   });
 });
+
+
+describe("Throttle", function() {
+  it("функция", function() {
+    assert.isOk(typeof throttle === "function");
+  });
+  it("возвращает функцию", function() {
+    assert.isOk(typeof throttle() === "function");
+  });
+  it("срабатывает внутренняя функция", function() {
+    var throttleTest = throttle(function(){return 1}, 100);
+    assert.isOk(throttleTest() === 1);
+  });
+  it("внутренняя функция возвращает правильное значение", function() {
+    var throttleTest = throttle(function(a){return a}, 100);
+    assert.isOk(throttleTest(2) === 2);
+  });
+  it("пропускает второй вызов из последовательности трех коротких вызовов", function() {
+    var testCount = 0;
+    var throttleTest = throttle(function(){testCount++}, 100);
+    throttleTest();
+    assert.isOk(testCount === 1);
+    //пропуск второго короткого вызова
+    setTimeout(function(){
+      throttleTest();
+    }, 50);
+    setTimeout(function(){
+      assert.isOk(testCount === 1);
+    }, 60);
+    //отработка третьего последнего вызова
+    setTimeout(function(){
+      throttleTest();
+    }, 50);
+    setTimeout(function(){
+      assert.isOk(testCount === 2);
+    }, 60);
+  });
+    it("отрабатывает два длинных вызова", function() {
+    var testCount = 0;
+    var throttleTest = throttle(function(){testCount++}, 100);
+    throttleTest();
+    assert.isOk(testCount === 1);
+    //отработка второго вызова
+    setTimeout(function(){
+      throttleTest();
+    }, 150);
+    setTimeout(function(){
+      assert.isOk(testCount === 2);
+    }, 160);
+  });
+});
+
+
+describe("Debounce", function() {
+  it("функция", function() {
+    assert.isOk(typeof debounce === "function");
+  });
+  it("возвращает функцию", function() {
+    assert.isOk(typeof debounce() === "function");
+  });
+  it("срабатывает внутренняя функция", function() {
+    var debounceTest = debounce(function(){return 1}, 100);
+    assert.isOk(debounceTest() === 1);
+  });
+  it("внутренняя функция возвращает правильное значение", function() {
+    var debounceTest = debounce(function(a){return a}, 100);
+    assert.isOk(debounceTest(2) === 2);
+  });
+  it("пропускает второй и третий вызовы из последовательности трех коротких вызовов", function() {
+    var testCount = 0;
+    var debounceTest = debounce(function(){testCount++}, 100);
+    debounceTest();
+    assert.isOk(testCount === 1);
+    //пропуск второго короткого вызова
+    setTimeout(function(){
+      debounceTest();
+    }, 50);
+    setTimeout(function(){
+      assert.isOk(testCount === 1);
+    }, 60);
+    //отработка третьего последнего вызова
+    setTimeout(function(){
+      debounceTest();
+    }, 50);
+    setTimeout(function(){
+      assert.isOk(testCount === 1);
+    }, 60);
+  });
+    it("отрабатывает два длинных вызова", function() {
+    var testCount = 0;
+    var debounceTest = debounce(function(){testCount++}, 100);
+    debounceTest();
+    assert.isOk(testCount === 1);
+    //отработка второго вызова
+    setTimeout(function(){
+      debounceTest();
+    }, 150);
+    setTimeout(function(){
+      assert.isOk(testCount === 2);
+    }, 160);
+  });
+});
+
+
 
 mocha.run();
