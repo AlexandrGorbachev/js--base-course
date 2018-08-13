@@ -305,13 +305,12 @@ function drawInteractiveCalendar(el) {
   calendarContainer.style.position = "fixed";
   calendarContainer.style.top = "100px";
   calendarContainer.style.right = "100px";
+  calendarContainer.id = "calendar";
 
   var year = +prompt("введите год", "2018");
   var month = +prompt("введите месяц в формате числа от 1 до 12", "7");
 
   publishCalendar(year, month, calendarContainer);
-
-  var buttonNext = document.getElementById("next");
 
   function clearCalendar() {
     el.removeChild(calendarContainer);
@@ -351,6 +350,31 @@ function drawInteractiveCalendar(el) {
       }
     publishCalendar(year, month, calendarContainer);
     });
+
+    var buttonClose = document.getElementById("close");
+    buttonClose.addEventListener("click", function(){
+      clearCalendar();
+      calendarIsShown = false;
+    });
+
+    var cellRemember = document.getElementById("calendar");
+    cellRemember.addEventListener("click", function(event){
+      if (!event.target.classList.contains("cell")) return;
+
+      document.getElementById("output").innerHTML = "";
+
+      var dateToRemember = event.target.textContent.match(/\d\d/) + "-" + month + "-" + year;
+      var rememberedDate = localStorage.getItem(dateToRemember);
+      if (rememberedDate) {
+        document.getElementById("output").innerHTML = dateToRemember + "<br>" + localStorage.getItem(dateToRemember);
+        // return; //позволяет корректировать уже введенную дату
+      }
+
+      var message = prompt("ваш комментарий", "");
+      if (!message) return;
+      document.getElementById("output").innerHTML = dateToRemember + "<br>" + message;
+      localStorage.setItem(dateToRemember, message);
+    });
   }
 }
 
@@ -367,9 +391,9 @@ function drawCalendar(year, month, htmlEl) {
             var j = "";
             var countDate = new Date(year, month-1, i);
             if (i < 10){
-                j = "__0" + i + " ";
+                j = "<span class='cell' style = 'cursor: pointer'>__0" + i + "</span>";
             } else {
-                j += "__" + i + " ";
+                j += "<span class='cell' style = 'cursor: pointer'>__" + i + "</span>";
             }
             if ( !countDate.getDay() ) {
                 j += "<br>";
@@ -383,15 +407,19 @@ function drawCalendar(year, month, htmlEl) {
             totalString = additionToString + totalString;
         }
 
-        totalString = "<span id='prev' style='cursor:pointer'>[<]</span><span id='calendarMonth'></span>/<span id='calendarYear'></span><span id='next' style='cursor:pointer'>[>]</span><br>"
+        totalString = "<span id='prev' style='cursor:pointer'>[<]</span><span id='calendarMonth'></span>/<span id='calendarYear'></span><span id='next' style='cursor:pointer'>[>]</span><span id='close' style='cursor:pointer; float:right'>X</span><br>"
                       + "<pre>  Пн   Вт   Ср   Чт  Пт   Сб   Вс</pre><br>" 
-                      + totalString;
+                      + totalString
+                      +"<div id='output' style='height:40px; color:green; border-top:1px solid grey'></div>";
 
         htmlEl.innerHTML = '';
         htmlEl.innerHTML = totalString;
 
         return totalString;
 }
+
+
+
 
 // функция throttle
 
