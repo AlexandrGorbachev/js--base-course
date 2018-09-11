@@ -1,12 +1,121 @@
-document.head.insertAdjacentHTML("beforeEnd", "<script src='https://cdnjs.cloudflare.com/ajax/libs/lodash.js/4.3.0/lodash.js'></script>");
-
 function Calendar(options){
+    var startOptions = options;
+    var lodashScript = document.createElement("script");
+    lodashScript.src = "https://cdnjs.cloudflare.com/ajax/libs/lodash.js/4.3.0/lodash.js";
+    
+    document.head.insertAdjacentHTML("beforeEnd", '<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">');
+    document.head.appendChild(lodashScript);  
+
+    lodashScript.onload = function(){
+
+                //шаблон CSS
+        var tmplCSS = _.template('<style>\
+        body{\
+            font-size: 20px;\
+            min-width: 900px;\
+        }\
+        .header_devider{\
+            font-weight: bold;\
+            margin: 15px;\
+        }\
+        header a{\
+            color: #069;\
+        }\
+        header a:first-child{\
+            margin-left: 30%;\
+        }\
+        #calendar_inputs{\
+            margin: 15px auto;\
+            width: 60%;\
+        }\
+        #calendar_configure label{\
+            display: block;\
+            margin: 5px;\
+        }\
+        \
+        #calendar_configure_code_section{\
+            float: left;\
+            width: 30%;\
+            border: 2px groove rgb(192,192,192);\
+            margin: 20px 5%;\
+        }\
+        #calendar_configure_calendar_section{\
+            float: right;\
+            width: 50%;\
+            margin: 20px 5% 0 0;\
+        }\
+        #calendar_configure_code_section span{\
+            display: block;\
+        }\
+        table{\
+          margin-top: 50px;\
+          width: 100%;\
+          border-collapse: collapse;\
+          text-align: center;\
+          border: 2px;\
+          bordercolor: rgb(192,192,192);\
+        }\
+        tr{\
+          height: 20px;\
+          valign: middle;\
+        }\
+        tbody>tr:first-child{\
+          height: 50px;\
+        }\
+        th{\
+           border: 2px solid rgb(130,130,130);\
+        }\
+        td{\
+          border: 2px solid rgb(192,192,192);\
+          height: 35px;\
+          width: 13%;\
+        }\
+        tr>td:last-child,\
+        tr>td:nth-child(6){\
+          color: #069;\
+        }\
+        </style>');
+        document.head.insertAdjacentHTML("beforeEnd", tmplCSS(null));
+
+        var tmplMainCreate = _.template('<header>\
+            <a href="#calendar">Calendar</a>\
+            <span class="header_devider">|</span>\
+            <a href="#create">Create</a>\
+        </header>\
+        <div id="myCalendar"></div>\
+        <div id="calendar_configure_shaded" style="display:none">\
+            <div id="calendar_inputs">\
+                <fieldset>\
+                    <legend>Configure Calendar</legend>\
+                    <label><input type="checkbox" name="allowChangeMonth" checked>Allow change month</label>\
+                    <label><input type="checkbox" name="allowAddTasks" checked>Allow add tasks</label>\
+                    <label><input type="checkbox" name="allowRemoveTasks" checked>Allow remove tasks</label>\
+                    <label><input type="checkbox" name="showMonth" checked>Show month / year</label>\
+                    <select id="months_selector"></select>\
+                    <select id="years_selector"></select>\
+                </fieldset>\
+            </div>\
+            <div id="calendar_configure_code_section"></div>\
+            <div id="calendar_configure_calendar_section"></div>\
+        </div>');
+
+        document.body.insertAdjacentHTML("afterBegin", tmplMainCreate(null));
+
+        makeCalendar(startOptions);
+    }; 
+}
+
+
+function makeCalendar(options){
+    document.title = "Calendar";
+
     var isShowMonth = options.showMonth,
         isAllowAdd = options.allowAdd,
         isAllowRemove = options.allowRemove,
         isAllowChangeMonth = options.allowChangeMonth,
         target = options.el.slice(1),
         date = options.date;
+
 
     window.location.hash = "#calendar";
     window.addEventListener("hashchange", function(){
@@ -15,17 +124,23 @@ function Calendar(options){
             showCreatePage();
         } else {
             clearPage();
+            ///
         }
     });
 
-    var currentDate = new Date(),
+    var currentDate,
         monthCollection = ["Январь","Февраль","Март","Апрель","Май","Июнь","Июль","Август","Сентябрь","Октябрь","Ноябрь","Декабрь" ],   
         mainPage = document.getElementById(target); //див для вставки
+
+    if (options.date === null) {
+        currentDate = new Date();
+    } else {
+        currentDate = new Date(options.date);
+    }
 
     function clearPage(){
         mainPage.innerHTML = "";
     }
-
 
     function showCreatePage(){
 
@@ -121,7 +236,7 @@ function Calendar(options){
             insertCodeLine("allowAdd:" + isAllowAdd + ",");
             insertCodeLine("allowRemove:" + isAllowRemove + ",");
             insertCodeLine("allowChangeMonth:" + isAllowChangeMonth + ",");
-            insertCodeLine("date: null // date = [2017, 11]");
+            insertCodeLine("date: null // date = [2018, 09]");
             insertCodeLine("})");
             insertCodeLine("})();");
             insertCodeLine("</script>");
@@ -150,6 +265,12 @@ function Calendar(options){
                 //скрытие выбора месяцев
             monthSelector.disabled = !isAllowChangeMonth;
             yearSelector.disabled = !isAllowChangeMonth;
+            var prevMonth = document.getElementById("prevMonth"),
+                nextMonth = document.getElementById("nextMonth");
+            if (!isAllowChangeMonth) {
+                prevMonth.style = "display:none";
+                nextMonth.style = "display:none";
+            }
 
             dateString.textContent = dateFormatter.format(currentDate);
 
@@ -178,95 +299,29 @@ function Calendar(options){
                 table.appendChild(row);
             }
         }
-        showCalendar();
+        showCalendar();   
     }
+    
+    var tmplTableHead = _.template('<table id="calendarTable" cols="7">\
+            <tr>\
+                <th colspan="7">\
+                    <i class="fa fa-chevron-left" id="prevMonth" style="float:left"></i>\
+                    <span id="dateString"></span>\
+                    <i class="fa fa-chevron-right" id="nextMonth" style="float:right"></i>\
+                </th>\
+            </tr>\
+            <tr>\
+                <td>Mo.</td>\
+                <td>Tu.</td>\
+                <td>We.</td>\
+                <td>Th.</td>\
+                <td>Fr.</td>\
+                <td>Sa.</td>\
+                <td>Su.</td>\
+            </tr>\
+        </table>');
 }
 
-
-//шаблон CSS
-var tmplCSS = _.template('<style>\
-body{\
-    font-size: 20px;\
-    min-width: 900px;\
-}\
-.header_devider{\
-    font-weight: bold;\
-    margin: 15px;\
-}\
-header a{\
-    color: #069;\
-}\
-header a:first-child{\
-    margin-left: 30%;\
-}\
-#calendar_inputs{\
-    margin: 15px auto;\
-    width: 60%;\
-}\
-#calendar_configure label{\
-    display: block;\
-    margin: 5px;\
-}\
-\
-#calendar_configure_code_section{\
-    float: left;\
-    width: 30%;\
-    border: 2px groove rgb(192,192,192);\
-    margin: 20px 5%;\
-}\
-#calendar_configure_calendar_section{\
-    float: right;\
-    width: 50%;\
-    margin: 20px 5% 0 0;\
-}\
-#calendar_configure_code_section span{\
-    display: block;\
-}\
-table{\
-  margin-top: 50px;\
-  width: 100%;\
-  border-collapse: collapse;\
-  text-align: center;\
-  border: 2px;\
-  bordercolor: rgb(192,192,192);\
-}\
-tr{\
-  height: 20px;\
-  valign: middle;\
-}\
-th{\
-   border: 1px solid black;\
-   height: 35px;\
-}\
-td{\
-  border: 1px solid black;\
-  height: 35px;\
-  width: 13%;\
-}\
-tr>td:last-child,\
-tr>td:nth-child(6){\
-  color: #069;\
-}\
-</style>');
-
-document.head.insertAdjacentHTML("beforeEnd", tmplCSS(null));
-
-var tmplTableHead = _.template('<table id="calendarTable" cols="7">\
-        <tr>\
-            <th colspan="7">\
-                <span id="dateString"></span>\
-            </th>\
-        </tr>\
-        <tr>\
-            <td>Mo.</td>\
-            <td>Tu.</td>\
-            <td>We.</td>\
-            <td>Th.</td>\
-            <td>Fr.</td>\
-            <td>Sa.</td>\
-            <td>Su.</td>\
-        </tr>\
-    </table>');
 
 new Calendar({
     el: '#myCalendar',
@@ -276,3 +331,6 @@ new Calendar({
     allowChangeMonth: true,
     date: null // date = [2018, 9]
 });
+
+
+
