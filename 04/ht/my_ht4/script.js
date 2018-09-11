@@ -245,7 +245,6 @@ function makeCalendar(options){
 
         function showCalendar(){
 
-            var currentDate = new Date();
             currentDate.setDate(1);
 
             var dateFormatter = new Intl.DateTimeFormat("en-US", {
@@ -271,10 +270,31 @@ function makeCalendar(options){
                 prevMonth.style = "display:none";
                 nextMonth.style = "display:none";
             }
+            //вотчеры на стрелки
+            prevMonth.addEventListener("click", function(){
+                if(currentDate.getMonth()){
+                    currentDate.setMonth(currentDate.getMonth() - 1);
+                } else {
+                    currentDate.setMonth(11);
+                    currentDate.setFullYear(currentDate.getFullYear() - 1);
+                }
+                
+                repaintCalendarPage();
+            });
+            nextMonth.addEventListener("click", function(){
+                if(currentDate.getMonth() != 11){
+                    currentDate.setMonth(currentDate.getMonth() + 1);
+                } else {
+                    currentDate.setFullYear(currentDate.getFullYear() + 1);
+                    currentDate.setMonth(0);             
+                }
+                
+                repaintCalendarPage();
+            });
 
             dateString.textContent = dateFormatter.format(currentDate);
 
-            var totalMonthDays = new Date();
+            var totalMonthDays = new Date(currentDate);
             totalMonthDays.setMonth(totalMonthDays.getMonth() + 1);
             totalMonthDays.setDate(0);
             totalMonthDays = totalMonthDays.getDate();
@@ -290,7 +310,7 @@ function makeCalendar(options){
                 for (var i = 1; i <= 7; i++){  
                     if ((daysCounter + 1) > totalMonthDays) isDates = false;
                     var cell = document.createElement("td");
-                    if (daysCounter <= totalMonthDays && firstDayDigit % 7 == i || firstDayDigit % 7 == 0){
+                    if (daysCounter <= totalMonthDays && (firstDayDigit % 7 == i || (firstDayDigit % 7 == 0 && i == 7))){
                         firstDayDigit++;
                         cell.textContent = "" + daysCounter++;
                     }
@@ -305,9 +325,9 @@ function makeCalendar(options){
     var tmplTableHead = _.template('<table id="calendarTable" cols="7">\
             <tr>\
                 <th colspan="7">\
-                    <i class="fa fa-chevron-left" id="prevMonth" style="float:left"></i>\
+                    <i class="fa fa-chevron-left" id="prevMonth" style="float:left; margin:0 15px; cursor: pointer"></i>\
                     <span id="dateString"></span>\
-                    <i class="fa fa-chevron-right" id="nextMonth" style="float:right"></i>\
+                    <i class="fa fa-chevron-right" id="nextMonth" style="float:right; margin:0 15px; cursor: pointer"></i>\
                 </th>\
             </tr>\
             <tr>\
