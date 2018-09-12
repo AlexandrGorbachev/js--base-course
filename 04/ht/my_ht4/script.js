@@ -210,6 +210,14 @@ function makeCalendar(options){
             isAllowChangeMonth = this.checked;
             repaintCalendarPage();
         });
+        yearSelector.addEventListener("change", function(){
+            currentDate.setFullYear(yearSelector.value);
+            repaintCalendarPage();
+        });
+        monthSelector.addEventListener("change", function(){
+            currentDate.setMonth(monthSelector.selectedIndex);
+            repaintCalendarPage();
+        });
 
         function repaintCalendarPage(){
             codeField.innerHTML = "";
