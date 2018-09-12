@@ -1,10 +1,15 @@
 function Calendar(options){
     var startOptions = options;
-   
+    var lodashScript = document.createElement("script");
+    lodashScript.src = "https://cdnjs.cloudflare.com/ajax/libs/lodash.js/4.3.0/lodash.js";
+    
     document.head.insertAdjacentHTML("beforeEnd", '<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">');
+    document.head.appendChild(lodashScript);  
+
+    lodashScript.onload = function(){
 
                 //шаблон CSS
-    var tmplCSS = '<style>\
+        var tmplCSS = _.template('<style>\
         body{\
             font-size: 20px;\
             min-width: 900px;\
@@ -68,10 +73,10 @@ function Calendar(options){
         tr>td:nth-child(6){\
           color: #069;\
         }\
-        </style>';
-        document.head.insertAdjacentHTML("beforeEnd", tmplCSS);
+        </style>');
+        document.head.insertAdjacentHTML("beforeEnd", tmplCSS(null));
 
-    var tmplMainCreate = '<header>\
+        var tmplMainCreate = _.template('<header>\
             <a href="#calendar">Calendar</a>\
             <span class="header_devider">|</span>\
             <a href="#create">Create</a>\
@@ -91,11 +96,12 @@ function Calendar(options){
             </div>\
             <div id="calendar_configure_code_section"></div>\
             <div id="calendar_configure_calendar_section"></div>\
-        </div>';
+        </div>');
 
-    document.body.insertAdjacentHTML("afterBegin", tmplMainCreate);
+        document.body.insertAdjacentHTML("afterBegin", tmplMainCreate(null));
 
-    makeCalendar(startOptions);
+        makeCalendar(startOptions);
+    }; 
 }
 
 
@@ -114,29 +120,22 @@ function makeCalendar(options){
         mainPage = document.getElementById(target),
         calendarField;
 
-
-    if (options.date === null) {
-        currentDate = new Date();
-    } else {
-        currentDate = new Date(options.date);
-    } 
-
+    window.location.hash = "#calendar";
     window.addEventListener("hashchange", function(){
         if (window.location.hash == "#create"){
             clearPage();
             showCreatePage();
         } else {
-            repaintOnlyCalendar();
+            clearPage();
+            ///
         }
     });
 
-    window.location.hash = "#calendar";
-    repaintOnlyCalendar();
 
-    function repaintOnlyCalendar(){
-        clearPage();
-        showCalendar(document.getElementById("myCalendar")); 
-        document.getElementById("myCalendar").style = "padding: 0 100px";  
+    if (options.date === null) {
+        currentDate = new Date();
+    } else {
+        currentDate = new Date(options.date);
     }
 
     function clearPage(){
@@ -195,8 +194,6 @@ function makeCalendar(options){
         inputRemoveTasks.checked = isAllowRemove;
         inputShowMonth.checked = isShowMonth;
         inputChangeMonth.checked = isAllowChangeMonth;
-
-//скрытие выбора месяцев
           
         inputAddTasks.addEventListener("change", function(){
             isAllowAdd = this.checked;
@@ -223,18 +220,11 @@ function makeCalendar(options){
             repaintCalendarPage();
         });
 
-        function setChangeMonth(){
-            monthSelector.disabled = !isAllowChangeMonth;
-            yearSelector.disabled = !isAllowChangeMonth;
-        }
-        setChangeMonth();
-
         function repaintCalendarPage(){
-            setChangeMonth();
             codeField.innerHTML = "";
             calendarField.innerHTML = "";
             fillCodeSection();
-            showCalendar(calendarField);
+            showCalendar();
         }
 
 //заполнение поля с кодом
@@ -261,31 +251,9 @@ function makeCalendar(options){
             insertCodeLine("</script>");
         } 
         fillCodeSection(); 
- 
-        showCalendar(calendarField);   
-    }
 
-    function showCalendar(calendarField){
+        function showCalendar(){
 
-        var tmplTableHead = '<table id="calendarTable" cols="7">\
-            <tr>\
-                <th colspan="7">\
-                    <i class="fa fa-chevron-left" id="prevMonth" style="float:left; margin:0 15px; cursor: pointer"></i>\
-                    <span id="dateString"></span>\
-                    <i class="fa fa-chevron-right" id="nextMonth" style="float:right; margin:0 15px; cursor: pointer"></i>\
-                </th>\
-            </tr>\
-            <tr>\
-                <td>Mo.</td>\
-                <td>Tu.</td>\
-                <td>We.</td>\
-                <td>Th.</td>\
-                <td>Fr.</td>\
-                <td>Sa.</td>\
-                <td>Su.</td>\
-            </tr>\
-        </table>';
-               
             currentDate.setDate(1);
 
             var dateFormatter = new Intl.DateTimeFormat("en-US", {
@@ -293,7 +261,7 @@ function makeCalendar(options){
               month: "long"
             });
 
-            calendarField.insertAdjacentHTML("afterBegin", tmplTableHead);
+            calendarField.insertAdjacentHTML("afterBegin", tmplTableHead(null));
 
             var table = document.getElementById("calendarTable"),
                 dateString = document.getElementById("dateString");
@@ -302,7 +270,9 @@ function makeCalendar(options){
             if (!isShowMonth) {
                 dateString.style = "display:none";
             } 
-
+                //скрытие выбора месяцев
+            monthSelector.disabled = !isAllowChangeMonth;
+            yearSelector.disabled = !isAllowChangeMonth;
             var prevMonth = document.getElementById("prevMonth"),
                 nextMonth = document.getElementById("nextMonth");
             if (!isAllowChangeMonth) {
@@ -317,13 +287,8 @@ function makeCalendar(options){
                     currentDate.setMonth(11);
                     currentDate.setFullYear(currentDate.getFullYear() - 1);
                 }
-                if (window.location.hash == "#create") {
-                    clearPage();
-                    showCreatePage();             
-                } else {
-                    repaintOnlyCalendar();
-                }
                 
+                repaintCalendarPage();
             });
             nextMonth.addEventListener("click", function(){
                 if(currentDate.getMonth() != 11){
@@ -332,12 +297,8 @@ function makeCalendar(options){
                     currentDate.setFullYear(currentDate.getFullYear() + 1);
                     currentDate.setMonth(0);             
                 }
-                if (window.location.hash == "#create") {
-                    clearPage();
-                    showCreatePage();               
-                } else {
-                    repaintOnlyCalendar();
-                }
+                
+                repaintCalendarPage();
             });
 
             dateString.textContent = dateFormatter.format(currentDate);
@@ -365,8 +326,29 @@ function makeCalendar(options){
                     row.appendChild(cell);
                 }
                 table.appendChild(row);
+            }
         }
-    }     
+        showCalendar();   
+    }
+    
+    var tmplTableHead = _.template('<table id="calendarTable" cols="7">\
+            <tr>\
+                <th colspan="7">\
+                    <i class="fa fa-chevron-left" id="prevMonth" style="float:left; margin:0 15px; cursor: pointer"></i>\
+                    <span id="dateString"></span>\
+                    <i class="fa fa-chevron-right" id="nextMonth" style="float:right; margin:0 15px; cursor: pointer"></i>\
+                </th>\
+            </tr>\
+            <tr>\
+                <td>Mo.</td>\
+                <td>Tu.</td>\
+                <td>We.</td>\
+                <td>Th.</td>\
+                <td>Fr.</td>\
+                <td>Sa.</td>\
+                <td>Su.</td>\
+            </tr>\
+        </table>');
 }
 
 
