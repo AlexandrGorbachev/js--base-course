@@ -50,6 +50,13 @@ function Calendar(options){
           border: 2px;\
           bordercolor: rgb(192,192,192);\
         }\
+        td span{\
+            display:block;\
+            font-size:14px;\
+        }\
+        td i{\
+            font-size:10px;\
+        }\
         tr{\
           valign: middle;\
         }\
@@ -61,7 +68,6 @@ function Calendar(options){
         }\
         td{\
           border: 2px solid rgb(192,192,192);\
-          height: 35px;\
           width: 13%;\
         }\
         tr>td:last-child,\
@@ -136,7 +142,7 @@ function makeCalendar(options){
     function repaintOnlyCalendar(){
         clearPage();
         showCalendar(document.getElementById("myCalendar")); 
-        document.getElementById("myCalendar").style = "padding: 0 100px";  
+        document.getElementById("myCalendar").style = "padding: 0 150px";  
     }
 
     function clearPage(){
@@ -286,98 +292,142 @@ function makeCalendar(options){
             </tr>\
         </table>';
                
-            currentDate.setDate(1);
+        currentDate.setDate(1);
 
-            var dateFormatter = new Intl.DateTimeFormat("en-US", {
-              year: "numeric",
-              month: "long"
-            });
+        var dateFormatter = new Intl.DateTimeFormat("en-US", {
+            year: "numeric",
+            month: "long"
+        });
 
-            calendarField.insertAdjacentHTML("afterBegin", tmplTableHead);
+        calendarField.insertAdjacentHTML("afterBegin", tmplTableHead);
 
-            var table = document.getElementById("calendarTable"),
-                dateString = document.getElementById("dateString");
+        var table = document.getElementById("calendarTable"),
+            dateString = document.getElementById("dateString");
   //поведения для переключателей              
                 //отображаем месяц или скрываем
-            if (!isShowMonth) {
-                dateString.style = "display:none";
-            } 
+        if (!isShowMonth) {
+            dateString.style = "display:none";
+        } 
 
-            var prevMonth = document.getElementById("prevMonth"),
-                nextMonth = document.getElementById("nextMonth");
-            if (!isAllowChangeMonth) {
-                prevMonth.style = "display:none";
-                nextMonth.style = "display:none";
-            }
+        var prevMonth = document.getElementById("prevMonth"),
+            nextMonth = document.getElementById("nextMonth");
+        if (!isAllowChangeMonth) {
+            prevMonth.style = "display:none";
+            nextMonth.style = "display:none";
+        }
             //вотчеры на стрелки
-            prevMonth.addEventListener("click", function(){
-                if(currentDate.getMonth()){
-                    currentDate.setMonth(currentDate.getMonth() - 1);
-                } else {
-                    currentDate.setMonth(11);
-                    currentDate.setFullYear(currentDate.getFullYear() - 1);
-                }
-                if (window.location.hash == "#create") {
-                    clearPage();
-                    showCreatePage();             
-                } else {
-                    repaintOnlyCalendar();
-                }
+        prevMonth.addEventListener("click", function(){
+            if(currentDate.getMonth()){
+                currentDate.setMonth(currentDate.getMonth() - 1);
+            } else {
+                currentDate.setMonth(11);
+                currentDate.setFullYear(currentDate.getFullYear() - 1);
+            }
+            if (window.location.hash == "#create") {
+                clearPage();
+                showCreatePage();             
+            } else {
+                repaintOnlyCalendar();
+            }
                 
             });
-            nextMonth.addEventListener("click", function(){
-                if(currentDate.getMonth() != 11){
-                    currentDate.setMonth(currentDate.getMonth() + 1);
-                } else {
-                    currentDate.setFullYear(currentDate.getFullYear() + 1);
-                    currentDate.setMonth(0);             
+        nextMonth.addEventListener("click", function(){
+            if(currentDate.getMonth() != 11){
+                currentDate.setMonth(currentDate.getMonth() + 1);
+            } else {
+                currentDate.setFullYear(currentDate.getFullYear() + 1);
+                currentDate.setMonth(0);             
+            }
+            if (window.location.hash == "#create") {
+                clearPage();
+                showCreatePage();               
+            } else {
+                repaintOnlyCalendar();
+            }
+        });
+
+        dateString.textContent = dateFormatter.format(currentDate);
+
+        var totalMonthDays = new Date(currentDate);
+        totalMonthDays.setMonth(totalMonthDays.getMonth() + 1);
+        totalMonthDays.setDate(0);
+        totalMonthDays = totalMonthDays.getDate();
+
+        var datesFragment = document.createDocumentFragment();
+        var isDates = true,
+            firstDayDigit = currentDate.getDay();
+        if (!firstDayDigit) firstDayDigit = 7;
+        var daysCounter = 1;
+
+        while (isDates) {
+            var row = document.createElement("tr");
+            for (var i = 1; i <= 7; i++){  
+                if ((daysCounter + 1) > totalMonthDays) isDates = false;
+                var cell = document.createElement("td");
+                if (daysCounter <= totalMonthDays && (firstDayDigit % 7 == i || (firstDayDigit % 7 == 0 && i == 7))){
+                    firstDayDigit++;
+                    cell.textContent = "" + daysCounter++;
                 }
-                if (window.location.hash == "#create") {
-                    clearPage();
-                    showCreatePage();               
+                if(window.location.hash == "#calendar"){
+                    row.style = "height:80px";
                 } else {
-                    repaintOnlyCalendar();
+                    row.style = "height:40px";
                 }
-            });
+                row.appendChild(cell);
+            }
+            table.appendChild(row);
+        }
 
-            dateString.textContent = dateFormatter.format(currentDate);
+        putInfoFromStorage(table);
 
-            var totalMonthDays = new Date(currentDate);
-            totalMonthDays.setMonth(totalMonthDays.getMonth() + 1);
-            totalMonthDays.setDate(0);
-            totalMonthDays = totalMonthDays.getDate();
+        table.addEventListener("dblclick", function(e){
+            var target = e.target;
+            while (target != table) {
+                if (target.tagName == 'TD' && isAllowAdd && target.innerHTML) {                  
+                    var task = prompt("Want to add a task?", "");
+                    if (!task) return;
+                    createTaskElement(task, target);
+                
+                    localStorage.setItem(target.firstChild.textContent + "-" + (currentDate.getMonth() + 1) + "-" 
+                        + currentDate.getFullYear() + "-" + Math.random(), task);
+                    return;
+                }
+                target = target.parentNode;
+            }
+        })
+    }
+    function createTaskElement(task, cell){
+        var taskElement = document.createElement("span");
+            taskElement.innerHTML = task + "<i class='fa fa-times' style='cursor:pointer; margin-left:5px'></i>";
 
-            var datesFragment = document.createDocumentFragment();
-            var isDates = true,
-                firstDayDigit = currentDate.getDay();
-            if (!firstDayDigit) firstDayDigit = 7;
-            var daysCounter = 1;
-
-            while (isDates) {
-                var row = document.createElement("tr");
-                for (var i = 1; i <= 7; i++){  
-                    if ((daysCounter + 1) > totalMonthDays) isDates = false;
-                    var cell = document.createElement("td");
-                    if (daysCounter <= totalMonthDays && (firstDayDigit % 7 == i || (firstDayDigit % 7 == 0 && i == 7))){
-                        firstDayDigit++;
-                        cell.textContent = "" + daysCounter++;
+        var closeElement = taskElement.querySelector("i");
+        closeElement.addEventListener("click", function(e){
+            if (isAllowRemove){
+                for(var i = 0; i < localStorage.length; i++){
+                    if (localStorage.getItem(localStorage.key(i)) == this.parentElement.firstChild.textContent){
+                        localStorage.removeItem(localStorage.key(i));
+                        break;
                     }
-                    row.appendChild(cell);
                 }
-                table.appendChild(row);
+                cell.removeChild(closeElement.parentElement);
+                e.stopPropagation();
+            }
+        });
+        cell.appendChild(taskElement);
+    }
+
+    function putInfoFromStorage(table){
+        var tdCollection = table.querySelectorAll("td");
+        for(var i = 0; i < localStorage.length; i++){
+           var item = localStorage.key(i).split("-");         
+           if (item.length == 4 && item[1] == (currentDate.getMonth() + 1)){
+                for (var j = 0; j < tdCollection.length; j++){
+                    if (tdCollection[j].firstChild && tdCollection[j].firstChild.textContent == item[0]){
+                        createTaskElement(localStorage.getItem(localStorage.key(i)), tdCollection[j]);
+                    }
+                }
+            }  
         }
     }     
 }
-
-
-new Calendar({
-    el: '#myCalendar',
-    showMonth: true,
-    allowAdd: false,
-    allowRemove: true,
-    allowChangeMonth: true,
-    date: null // date = [2018, 9]
-});
-
-
 
