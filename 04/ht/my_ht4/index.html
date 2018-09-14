@@ -6,16 +6,21 @@
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
 </head>
 <body>
-    <script src="script.js"></script>
-    <script type="text/javascript">
-        new Calendar({
-            el: '#myCalendar',
-            showMonth: true,
-            allowAdd: true,
-            allowRemove: true,
-            allowChangeMonth: true,
-            date: null // date = [2018, 9]
-        });
+    <script src='script.js'></script>
+    <script>
+        (function(){
+            var id = 'calendar123';
+            document.write('<div id="' + id + '"></div>');
+            new Calendar({
+                el: '#' + id,
+                showMonth:true,
+                allowAdd:true,
+                allowRemove:true,
+                allowChangeMonth:true,
+                date: null // date = [2018, 09]
+            })
+        })();
     </script>
+    <script src='script.js'></script>
 </body>
 </html>

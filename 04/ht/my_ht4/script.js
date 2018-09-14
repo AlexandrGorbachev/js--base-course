@@ -77,6 +77,13 @@ function Calendar(options){
         </style>';
         document.head.insertAdjacentHTML("beforeEnd", tmplCSS);
 
+    makeCalendar(startOptions);
+}
+
+
+function makeCalendar(options){
+
+    document.title = "Calendar";
     var tmplMainCreate = '<header>\
             <a href="#calendar">Calendar</a>\
             <span class="header_devider">|</span>\
@@ -99,21 +106,15 @@ function Calendar(options){
             <div id="calendar_configure_calendar_section"></div>\
         </div>';
 
-    document.body.insertAdjacentHTML("afterBegin", tmplMainCreate);
-
-    makeCalendar(startOptions);
-}
-
-
-function makeCalendar(options){
-    document.title = "Calendar";
-
     var isShowMonth = options.showMonth,
         isAllowAdd = options.allowAdd,
         isAllowRemove = options.allowRemove,
         isAllowChangeMonth = options.allowChangeMonth,
-        target = options.el.slice(1),
-        date = options.date;
+        target = "myCalendar",
+        date = options.date,
+        targetDiv = document.getElementById(options.el.slice(1));
+
+    targetDiv.insertAdjacentHTML("afterBegin", tmplMainCreate);
 
     var currentDate,
         monthCollection = ["Январь","Февраль","Март","Апрель","Май","Июнь","Июль","Август","Сентябрь","Октябрь","Ноябрь","Декабрь" ],   
