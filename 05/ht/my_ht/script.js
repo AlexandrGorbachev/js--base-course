@@ -75,17 +75,18 @@ function getHash(){
 }
 
 function findProperRoute(listOfRoutes, hash){
-  var findedRoute;
+  var findedRoute = [null, null];
   listOfRoutes.forEach(function(singleRoute){
+    if (findedRoute[0]) return;
     if (singleRoute.match === hash) {
-      findedRoute = [singleRoute, null];
+      findedRoute = [singleRoute, hash];
     }
     else if (singleRoute.match instanceof RegExp && singleRoute.match.test(hash)){
       findedRoute = [singleRoute, hash.match(singleRoute.match)[1]];
     }
     else if (typeof singleRoute.match === "function" && singleRoute.match(hash)){
-      findedRoute = [singleRoute, null];
-    } 
+      findedRoute = [singleRoute, hash];
+    }
   })
   return findedRoute;
 }

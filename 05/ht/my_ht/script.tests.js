@@ -1,8 +1,5 @@
 "use strict";
 
-/* eslint no-var: "off" */
-/* eslint no-unused-vars: "off" */
-/* eslint max-len: "off" */
 mocha.setup("bdd");
 var assert = chai.assert;
 var expect = chai.expect;
@@ -164,7 +161,7 @@ describe("Router", () => {
     return assert.isOk(myRoutes.routes === router.routes);
   });
 
-  describe("Logic", () => {
+  describe("logic", () => {
     it("uses init() to start", () => {
       var myRoutes2 = {
         routes: [
@@ -184,7 +181,115 @@ describe("Router", () => {
       assert.isOk(typeof new Router().handleUrl === "function");
       assert.isOk(new Router().handleUrl === Router.prototype.handleUrl);
     });
+    it("called on start with current hash", done => {
+      window.location.hash = "new hash";
+      var tempHandleUrl = Router.prototype.handleUrl;
+      var temp;
+      Router.prototype.handleUrl = url => (temp = url);
+      new Router({}).init();
+      Router.prototype.handleUrl = tempHandleUrl;
+      setTimeout(() => {
+        done(assert.equal(temp, "new hash"));
+      }, 50);
+    });
+    it("called on hashchange with current hash", done => {
+      window.location.hash = "new hash";
+      var tempHandleUrl = Router.prototype.handleUrl;
+      var test;
+      Router.prototype.handleUrl = hash => (test = hash);
+      new Router({}).init();
+      window.location.hash = "very new hash";
+        setTimeout(() => {
+          Router.prototype.handleUrl = tempHandleUrl;
+          done(assert.equal(test, "very new hash"));
+      }, 50);
+    });
+    it("calls onEnter and onBeforeEnter properly", done => {
+      var test = 0,
+      paramTest,
+      routesTest = {
+        routes: [
+          {
+            match: "new hash",
+            onEnter: hash => {
+              test++;
+              paramTest = hash;
+            },
+            onBeforeEnter: hash => {
+              test++;
+            }
+          }
+        ]
+      };
+      new Router(routesTest).init();
+      window.location.hash = "new hash";
+      setTimeout(() => {
+        assert.equal(test, 2);
+        assert.equal(paramTest, "new hash");
+        done();
+      }, 50);
+    });
+    it("calls onLeave properly", done => {
+      var test = 0,
+      paramTest,
+      routesTest = {
+        routes: [
+          {
+            match: "new hash",
+            onLeave: hash => {
+              test++;
+              paramTest = hash;
+            }
+          }
+        ]
+      };
+      new Router(routesTest).init();
+      window.location.hash = "new hash";
+      window.location.hash = "hash";
+      setTimeout(() => {
+        assert.equal(test, 1);
+        assert.equal(paramTest, "new hash");
+        done();
+      }, 50);
+    });
+  })
+
+  describe("public findRoute function", () => {
+    it("is function", () => {
+       assert.isOk(typeof findProperRoute === "function"); 
+    })
+    it("gets 2 parameters", () => {
+      assert.isOk(findProperRoute.length === 2);
+    });
+    it("returns nulls for unknown arguments", () => {
+      assert.isOk(findProperRoute(myRoutes.routes, "unknown").length === 2);
+      assert.isOk(typeof findProperRoute(myRoutes.routes, "unknown")[0] === "object");
+      assert.isOk(typeof findProperRoute(myRoutes.routes, "unknown")[1] === "object");
+    });
+    it("returns proper route for string argument (or default '' index page)", () => {
+      assert.isOk(findProperRoute(myRoutes.routes, "")[0] === myRoutes.routes[0]);
+    });
+    it("returns proper route for function match", () => {
+      assert.isOk(findProperRoute(myRoutes.routes, "about")[0] === myRoutes.routes[2]);
+    });
+    it("returns proper route for regexp match and parameter", () => {
+      assert.isOk(findProperRoute(myRoutes.routes, "city=Minsk")[0] === myRoutes.routes[1]);
+      assert.isOk(findProperRoute(myRoutes.routes, "city=Minsk")[1] === "Minsk");
+    });
+    it("returns first match", () => {
+      var myRoutes = {
+        routes: [
+          {
+            match: "city=Minsk"
+          },
+          {
+            match: /city=(.+)/
+          }
+        ]};
+      assert.isOk(findProperRoute(myRoutes.routes, "city=Minsk")[0] === myRoutes.routes[0]);
+    });
   })
 });
 
 mocha.run();
+
